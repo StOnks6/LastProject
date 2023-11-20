@@ -1,0 +1,22 @@
+{% extends "django_recipes/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+  <form method="POST">
+    {% csrf_token %}
+    <fieldset class="form-group">
+      <legend class="border-bottom mb-4">Log In!</legend>
+      {{ form|crispy }}
+    </fieldset>
+    <div class="form-group py-3">
+      <input class="btn btn-outline-primary" type="submit" value="Login" />
+    </div>
+  </form>
+  <div class="border-top pt-3">
+    <a href="#">Already have an account? Register.</a>
+  </div>
+</div>
+
+<!-- -->
+{% endblock content %}

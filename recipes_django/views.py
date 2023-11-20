@@ -1,10 +1,9 @@
-from django.forms.models import BaseModelForm
-from django.http import HttpResponse
+from django.urls import reverse_lazy
 from django.shortcuts import render
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
-from django.http import Http404 
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from . import models
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 def home_page(request):
@@ -24,26 +23,36 @@ class RecipeList(ListView):
 class RecipeDetail(DetailView):
     model = models.Recipe
 
-class RecipeCreate(LoginRequiredMixin , CreateView):
-    model = models.Recipe
-    fields = ["title", "description"]
+class RecipeCreate(LoginRequiredMixin, CreateView):
+  model = models.Recipe
+  fields = ['title', 'description']
 
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
+  def form_valid(self, form):
+    form.instance.author = self.request.user
+    return super().form_valid(form)
     
     
+
 class RecipeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = models.Recipe
+    template_name = "recipes_django/recipe_update.html"
     fields = ['title', 'description']
     
     def test_func(self):
-        recipe = self.get_object()
+        recipe = get_object_or_404(models.Recipe, pk=self.kwargs['pk'])
         return self.request.user == recipe.author
 
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
+    
+class RecipeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+  model = models.Recipe
+  success_url = reverse_lazy('recipes-home')
+
+  def test_func(self):
+    recipe = self.get_object()
+    return self.request.user == recipe.author
   
 
 def about_page(request):
